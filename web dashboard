@@ -1,0 +1,28 @@
+# Internal Web Dashboard Troubleshooting Checklist
+
+## Step 1: Verify DNS Resolution
+- [ ] Use `dig` or `nslookup` with the local DNS server.
+- [ ] Test using Google DNS (8.8.8.8).
+- [ ] Compare results: if internal DNS fails but 8.8.8.8 works, the issue is local.
+
+**Commands:**
+```bash
+dig internal.example.com
+dig @8.8.8.8 internal.example.com
+## Step 2: Diagnose Service Reachability
+curl -v http://internal.example.com
+telnet internal.example.com 80
+nc -zv internal.example.com 80
+ss -tlnp
+## Step 3: Trace the Issue — Possible Causes
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+# Open ports 80 and 443
+firewall-cmd --permanent --add-port=80/tcp
+firewall-cmd --permanent --add-port=443/tcp
+firewall-cmd --reload
+
+# Restart web service
+systemctl restart apache2
+# or
+systemctl restart nginx
